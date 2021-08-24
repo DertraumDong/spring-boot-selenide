@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StopWatch;
 
 import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Selenide.*;
@@ -56,12 +57,15 @@ public class userLoginService {
 
     @Test
     public void userCanLoginByUsername() throws Exception {
-        long start = System.currentTimeMillis();
+        StopWatch stopWatch = new StopWatch("批量生成工作单");
+        stopWatch.start("读取配置");
         // 配置
         Configuration.browser = "chrome";
         Configuration.holdBrowserOpen = true;
         System.setProperty("webdriver.chrome.driver", "D:\\IdeaProjects\\spring-boot-selenide\\src\\main\\resources\\chromedriver.exe");
         this.loadInfo();
+        stopWatch.stop();
+        stopWatch.start("开启网站，登录");
         open(url);
         // 登录
         Selenide.Wait().until(visibilityOfElementLocated(By.id("from_submit")));
@@ -70,6 +74,8 @@ public class userLoginService {
         $(By.id("login")).click();
         LOGGER.info("登录成功");
         sleep(3000);
+        stopWatch.stop();
+        stopWatch.start("生成工作单");
         // 选择菜单
         $(By.xpath("//*[@id=\"MainNav\"]/div[5]/div[1]/a")).click();
         $(By.xpath("//*[@id=\"MainNav\"]/div[5]/div[2]/div[1]/div[1]/a")).click();
@@ -79,6 +85,8 @@ public class userLoginService {
         LOGGER.info("欲生成{}个工作单",size);
         for(int i = 0 ; i < size ; i++){
             String str = "第"+(i+1)+"个工作单";
+            StopWatch sw = new StopWatch(str);
+            sw.start("生成……");
             $(By.xpath("//*[@id=\"iframeWrap\"]/div[2]/iframe")).waitUntil(Condition.exist,2000).click();
             String iframe = $(By.xpath("//*[@id=\"iframeWrap\"]/div[2]/iframe")).getAttribute("name");
             Selenide.switchTo().frame(iframe);
@@ -88,6 +96,9 @@ public class userLoginService {
             switchTo().defaultContent();
             String iframe1 = $(By.xpath("//*[@id=\"iframeWrap\"]/div[3]/iframe")).getAttribute("name");
             Selenide.switchTo().frame(iframe1);
+
+            sw.stop();
+            sw.start("填写工作单资料");
 
             $(By.xpath("//*[@id=\"seaBasicForm\"]/div[2]/div[1]/div[1]/div/label/input[2]")).setValue(clientName);
             $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist,2000);
@@ -125,6 +136,8 @@ public class userLoginService {
             $(By.xpath("//*[@id=\"serialNumbers\"]/li[2]/a")).waitUntil(Condition.exist,2000).click();
             LOGGER.info("{},选择编码成功",str);
 
+            sw.stop();
+            sw.start("生成费用");
 
             $(By.xpath("//*[@id=\"iframeWrap\"]/div[3]/iframe")).waitUntil(Condition.exist,2000).click();
             String iframeEdit = $(By.xpath("//*[@id=\"iframeWrap\"]/div[3]/iframe")).getAttribute("name");
@@ -180,11 +193,13 @@ public class userLoginService {
             LOGGER.info("{},回到主页面",str);
             $(By.xpath("//*[@id=\"navbarTab\"]/li[3]/i")).click();
             LOGGER.info("{},关闭页签",str);
-            LOGGER.info("-----------------------");
+            sw.stop();
+            LOGGER.info(sw.prettyPrint());
         }
         LOGGER.info("批量创建工作单完成，创建数量: {} 个",size);
-        long end = System.currentTimeMillis();
-        LOGGER.info("耗时：{}秒",(end-start)/1000);
+        stopWatch.stop();
+        stopWatch.start("结束");
+        LOGGER.info(stopWatch.prettyPrint());
     }
 
     /**
