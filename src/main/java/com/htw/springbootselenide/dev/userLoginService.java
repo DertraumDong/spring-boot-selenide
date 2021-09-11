@@ -146,7 +146,7 @@ public class userLoginService {
                 Selenide.switchTo().frame(iframeEdit);
                 LOGGER.info("{},跳转工作单成功！",str);
 
-                sleep(1000);
+                sleep(500);
                 $(By.xpath("//*[@id=\"tabTitle\"]/li[6]")).click();
                 LOGGER.info("{},跳转费用管理！",str);
 
