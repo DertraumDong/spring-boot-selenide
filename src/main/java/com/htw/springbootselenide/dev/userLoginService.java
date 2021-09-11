@@ -26,15 +26,15 @@ public class userLoginService {
     String clientName = "";
 
     // 工作单数量范围
-    int billMaxNum = 1;
-    int billMinNum = 1;
+    int billMaxNum = 100;
+    int billMinNum = 100;
 
     // 应收费用数量
-    int receivableCostMaxNum = 10;
-    int receivableCostMinNum = 6;
+    int receivableCostMaxNum = 2;
+    int receivableCostMinNum = 1;
     // 应付费用数量
-    int payCostMaxNum = 6;
-    int payCostMinNum = 4;
+    int payCostMaxNum = 2;
+    int payCostMinNum = 1;
 
     String dev = "test3";
 
@@ -58,148 +58,155 @@ public class userLoginService {
     @Test
     public void userCanLoginByUsername() throws Exception {
         StopWatch stopWatch = new StopWatch("批量生成工作单");
-        stopWatch.start("读取配置");
-        // 配置
-        Configuration.browser = "chrome";
-        Configuration.holdBrowserOpen = true;
-        System.setProperty("webdriver.chrome.driver", "D:\\IdeaProjects\\spring-boot-selenide\\src\\main\\resources\\chromedriver.exe");
-        this.loadInfo();
-        stopWatch.stop();
-        stopWatch.start("开启网站，登录");
-        open(url);
-        // 登录
-        Selenide.Wait().until(visibilityOfElementLocated(By.id("from_submit")));
-        $(By.name("userName")).setValue(name);
-        $(By.name("password")).setValue(password);
-        $(By.id("login")).click();
-        LOGGER.info("登录成功");
-        sleep(3000);
-        stopWatch.stop();
-        stopWatch.start("生成工作单");
-        // 选择菜单
-        $(By.xpath("//*[@id=\"MainNav\"]/div[5]/div[1]/a")).click();
-        $(By.xpath("//*[@id=\"MainNav\"]/div[5]/div[2]/div[1]/div[1]/a")).click();
-        $(By.xpath("//*[@id=\"MainNav\"]/div[5]/div[2]/div[1]/div[2]/div[1]/div")).click();
-        LOGGER.info("选择菜单-海运工作单");
-        int size = random(billMaxNum,billMinNum);
-        LOGGER.info("欲生成{}个工作单",size);
-        for(int i = 0 ; i < size ; i++){
-            String str = "第"+(i+1)+"个工作单";
-            StopWatch sw = new StopWatch(str);
-            sw.start("生成……");
-            $(By.xpath("//*[@id=\"iframeWrap\"]/div[2]/iframe")).waitUntil(Condition.exist,2000).click();
-            String iframe = $(By.xpath("//*[@id=\"iframeWrap\"]/div[2]/iframe")).getAttribute("name");
-            Selenide.switchTo().frame(iframe);
-            LOGGER.info("{},切换创建工作单页面",str);
-            $(By.xpath("//*[@id=\"subList_create\"]")).click();
+        int createNum = 0 ;
+        try {
+            stopWatch.start("读取配置");
+            // 配置
+            Configuration.browser = "chrome";
+            Configuration.holdBrowserOpen = true;
+            System.setProperty("webdriver.chrome.driver", "D:\\IdeaProjects\\spring-boot-selenide\\src\\main\\resources\\chromedriver.exe");
+            this.loadInfo();
+            stopWatch.stop();
+            stopWatch.start("开启网站，登录");
+            open(url);
+            // 登录
+            Selenide.Wait().until(visibilityOfElementLocated(By.id("from_submit")));
+            $(By.name("userName")).setValue(name);
+            $(By.name("password")).setValue(password);
+            $(By.id("login")).click();
+            LOGGER.info("登录成功");
             sleep(2000);
-            switchTo().defaultContent();
-            String iframe1 = $(By.xpath("//*[@id=\"iframeWrap\"]/div[3]/iframe")).getAttribute("name");
-            Selenide.switchTo().frame(iframe1);
+            stopWatch.stop();
+            stopWatch.start("生成工作单");
+            // 选择菜单
+            $(By.xpath("//*[@id=\"MainNav\"]/div[5]/div[1]/a")).click();
+            $(By.xpath("//*[@id=\"MainNav\"]/div[5]/div[2]/div[1]/div[1]/a")).click();
+            $(By.xpath("//*[@id=\"MainNav\"]/div[5]/div[2]/div[1]/div[2]/div[1]/div")).click();
+            LOGGER.info("选择菜单-海运工作单");
+            int size = random(billMaxNum,billMinNum);
+            LOGGER.info("欲生成{}个工作单",size);
+            for(int i = 0 ; i < size ; i++){
+                String str = "第"+(i+1)+"个工作单";
+                StopWatch sw = new StopWatch(str);
+                sw.start("生成……");
+                $(By.xpath("//*[@id=\"iframeWrap\"]/div[2]/iframe")).waitUntil(Condition.exist,2000).click();
+                String iframe = $(By.xpath("//*[@id=\"iframeWrap\"]/div[2]/iframe")).getAttribute("name");
+                Selenide.switchTo().frame(iframe);
+                LOGGER.info("{},切换创建工作单页面",str);
+                $(By.xpath("//*[@id=\"subList_create\"]")).click();
+                sleep(1000);
+                switchTo().defaultContent();
+                String iframe1 = $(By.xpath("//*[@id=\"iframeWrap\"]/div[3]/iframe")).getAttribute("name");
+                Selenide.switchTo().frame(iframe1);
 
-            sw.stop();
-            sw.start("填写工作单资料");
+                sw.stop();
+                sw.start("填写工作单资料");
 
-            $(By.xpath("//*[@id=\"seaBasicForm\"]/div[2]/div[1]/div[1]/div/label/input[2]")).setValue(clientName);
-            $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist,2000);
-            sleep(500);
-            $(By.xpath("/html/body/div[2]")).click();
+                $(By.xpath("//*[@id=\"seaBasicForm\"]/div[2]/div[1]/div[1]/div/label/input[2]")).setValue(clientName);
+                $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist,2000);
+                sleep(500);
+                $(By.xpath("/html/body/div[2]")).click();
 
-            $(By.xpath("//*[@id=\"seaBasicForm\"]/div[2]/div[1]/div[5]/div/div/label/input[2]")).click();
-            $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist,2000);
-            $(By.xpath("/html/body/div[2]")).click();
-
-            $(By.xpath("//*[@id=\"seaBasicForm\"]/div[3]/div[1]/div[2]/div/div[3]/div/div[1]/label/input[2]")).click();
-            $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist,2000);
-            $(By.xpath("/html/body/div[2]")).click();
-
-            $(By.xpath("//*[@id=\"seaBasicForm\"]/div[3]/div[1]/div[2]/div/div[4]/div/div[1]/label/input[2]")).click();
-            $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist,2000);
-            $(By.xpath("/html/body/div[2]")).click();
-            // ETD
-            $(By.xpath("//*[@id=\"seaBasicForm\"]/div[3]/div[1]/div[2]/div/div[9]/div[1]/input")).click();
-            $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist,2000);
-            $(By.xpath("//*[@id=\"layui-laydate3\"]/div[2]/div/span[2]")).click();
-
-            $(By.xpath("//*[@id=\"seaBasicForm\"]/div[2]/div[1]/div[18]/div/div/div/input")).click();
-            $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist,2000);
-            $(By.xpath("/html/body/div[2]")).click();
-
-
-            sleep(500);
-            $(By.xpath("//*[@id=\"seaBasicForm\"]/div[1]/div/div[3]")).click();
-            LOGGER.info("{},单据保存",str);
-
-            sleep(1000);
-            switchTo().defaultContent();
-            $(By.xpath("//*[@id=\"serialNumberSelect\"]")).should(exist);
-            $(By.xpath("//*[@id=\"serialNumbers\"]/li[2]/a")).waitUntil(Condition.exist,2000).click();
-            LOGGER.info("{},选择编码成功",str);
-
-            sw.stop();
-            sw.start("生成费用");
-
-            $(By.xpath("//*[@id=\"iframeWrap\"]/div[3]/iframe")).waitUntil(Condition.exist,2000).click();
-            String iframeEdit = $(By.xpath("//*[@id=\"iframeWrap\"]/div[3]/iframe")).getAttribute("name");
-            Selenide.switchTo().frame(iframeEdit);
-            LOGGER.info("{},跳转工作单成功！",str);
-
-            sleep(2000);
-            $(By.xpath("//*[@id=\"tabTitle\"]/li[6]")).click();
-            LOGGER.info("{},跳转费用管理！",str);
-
-            sleep(500);
-
-            // 应收
-
-            sleep(500);
-            // 费用
-            int costNum = random(receivableCostMaxNum,receivableCostMinNum);
-            LOGGER.info("{},生成应收费用数量：{}",str,costNum);
-            for (int j = 0; j < costNum; j++) {
-                $(By.xpath("//*[@id=\"receivableTable\"]/div[1]/div/table/thead/tr/th[2]/div/i")).click();
-                String tr = j==0?"tr":"tr["+(j+1)+"]";
-                $(By.xpath("//*[@id=\"receivableTable\"]/div[2]/table/tbody/"+tr+"/td[6]/div/label/input[2]")).click();
+                $(By.xpath("//*[@id=\"seaBasicForm\"]/div[2]/div[1]/div[5]/div/div/label/input[2]")).click();
                 $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist,2000);
                 $(By.xpath("/html/body/div[2]")).click();
-                $(By.xpath("//*[@id=\"receivableTable\"]/div[2]/table/tbody/"+tr+"/td[8]/div/input")).setValue(buildMoney(600,200));
-            }
-            sleep(500);
 
-            // 应付
-            costNum = random(payCostMaxNum,payCostMinNum);
-            LOGGER.info("{},生成应付费用数量：{}",str,costNum);
-            for (int j = 0; j < costNum; j++) {
-                $(By.xpath("//*[@id=\"payableTable\"]/div[1]/div/table/thead/tr/th[2]/div/i")).click();
-                sleep(500);
-                String tr = j==0?"tr":"tr["+(j+1)+"]";
-                // 结算对象
-                $(By.xpath("//*[@id=\"payableTable\"]/div[2]/table/tbody/"+tr+"/td[5]/div/label/input[2]")).setValue(clientName);
-                sleep(500);
+                $(By.xpath("//*[@id=\"seaBasicForm\"]/div[3]/div[1]/div[2]/div/div[3]/div/div[1]/label/input[2]")).click();
                 $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist,2000);
                 $(By.xpath("/html/body/div[2]")).click();
+
+                $(By.xpath("//*[@id=\"seaBasicForm\"]/div[3]/div[1]/div[2]/div/div[4]/div/div[1]/label/input[2]")).click();
+                $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist,2000);
+                $(By.xpath("/html/body/div[2]")).click();
+                // ETD
+                $(By.xpath("//*[@id=\"seaBasicForm\"]/div[3]/div[1]/div[2]/div/div[9]/div[1]/input")).click();
+                $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist,2000);
+                $(By.xpath("//*[@id=\"layui-laydate3\"]/div[2]/div/span[2]")).click();
+
+                $(By.xpath("//*[@id=\"seaBasicForm\"]/div[2]/div[1]/div[18]/div/div/div/input")).click();
+                $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist,2000);
+                $(By.xpath("/html/body/div[2]")).click();
+
+
+                sleep(500);
+                $(By.xpath("//*[@id=\"seaBasicForm\"]/div[1]/div/div[3]")).click();
+                LOGGER.info("{},单据保存",str);
+
+                sleep(500);
+                switchTo().defaultContent();
+                $(By.xpath("//*[@id=\"serialNumberSelect\"]")).should(exist);
+                $(By.xpath("//*[@id=\"serialNumbers\"]/li[2]/a")).waitUntil(Condition.exist,2000).click();
+                LOGGER.info("{},选择编码成功",str);
+
+                sw.stop();
+                sw.start("生成费用");
+
+                $(By.xpath("//*[@id=\"iframeWrap\"]/div[3]/iframe")).waitUntil(Condition.exist,2000).click();
+                String iframeEdit = $(By.xpath("//*[@id=\"iframeWrap\"]/div[3]/iframe")).getAttribute("name");
+                Selenide.switchTo().frame(iframeEdit);
+                LOGGER.info("{},跳转工作单成功！",str);
+
+                sleep(1000);
+                $(By.xpath("//*[@id=\"tabTitle\"]/li[6]")).click();
+                LOGGER.info("{},跳转费用管理！",str);
+
+                // 应收
+                sleep(500);
                 // 费用
-                $(By.xpath("//*[@id=\"payableTable\"]/div[2]/table/tbody/"+tr+"/td[6]/div/label/input[2]")).click();
-                $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist, 2000);
-                $(By.xpath("/html/body/div[2]")).click();
-                $(By.xpath("//*[@id=\"payableTable\"]/div[2]/table/tbody/"+tr+"/td[8]/div/input")).setValue(buildMoney(300, 100));
-            }
-            // 保存费用操作
-            $(By.xpath("//*[@id=\"saveBtn\"]")).click();
-            LOGGER.info("{},保存费用成功",str);
-            sleep(2000);
+                int costNum = random(receivableCostMaxNum,receivableCostMinNum);
+                LOGGER.info("{},生成应收费用数量：{}",str,costNum);
+                for (int j = 0; j < costNum; j++) {
+                    $(By.xpath("//*[@id=\"receivableTable\"]/div[1]/div/table/thead/tr/th[2]/div/i")).click();
+                    String tr = j==0?"tr":"tr["+(j+1)+"]";
+                    $(By.xpath("//*[@id=\"receivableTable\"]/div[2]/table/tbody/"+tr+"/td[6]/div/label/input[2]")).click();
+                    $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist,2000);
+                    $(By.xpath("/html/body/div[2]")).click();
+                    $(By.xpath("//*[@id=\"receivableTable\"]/div[2]/table/tbody/"+tr+"/td[8]/div/input")).setValue(buildMoney(600,200));
+                }
+                sleep(500);
 
-            switchTo().defaultContent();
-            LOGGER.info("{},回到主页面",str);
-            $(By.xpath("//*[@id=\"navbarTab\"]/li[3]/i")).click();
-            LOGGER.info("{},关闭页签",str);
-            sw.stop();
-            LOGGER.info(sw.prettyPrint());
+                // 应付
+                costNum = random(payCostMaxNum,payCostMinNum);
+                LOGGER.info("{},生成应付费用数量：{}",str,costNum);
+                for (int j = 0; j < costNum; j++) {
+                    $(By.xpath("//*[@id=\"payableTable\"]/div[1]/div/table/thead/tr/th[2]/div/i")).click();
+                    sleep(500);
+                    String tr = j==0?"tr":"tr["+(j+1)+"]";
+                    // 结算对象
+                    $(By.xpath("//*[@id=\"payableTable\"]/div[2]/table/tbody/"+tr+"/td[4]/div/label/input[2]")).setValue(clientName);
+                    sleep(500);
+                    $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist,2000);
+                    $(By.xpath("/html/body/div[2]")).click();
+                    // 费用
+                    $(By.xpath("//*[@id=\"payableTable\"]/div[2]/table/tbody/"+tr+"/td[5]/div/label/input[2]")).click();
+                    $(By.xpath("/html/body/div[2]")).waitUntil(Condition.exist, 2000);
+                    $(By.xpath("/html/body/div[2]")).click();
+                    $(By.xpath("//*[@id=\"payableTable\"]/div[2]/table/tbody/"+tr+"/td[7]/div/input")).setValue(buildMoney(300, 100));
+                }
+                // 保存费用操作
+                $(By.xpath("//*[@id=\"saveBtn\"]")).click();
+                LOGGER.info("{},保存费用成功",str);
+                sleep(2000);
+
+                switchTo().defaultContent();
+                LOGGER.info("{},回到主页面",str);
+                $(By.xpath("//*[@id=\"navbarTab\"]/li[3]/i")).click();
+                LOGGER.info("{},关闭页签",str);
+                sw.stop();
+                LOGGER.info(sw.prettyPrint());
+                createNum++;
+            }
+            stopWatch.stop();
+            stopWatch.start("结束");
+
+        }catch (Exception e){
+            LOGGER.error(e.getLocalizedMessage());
+        }finally {
+            LOGGER.info("批量创建工作单完成，已创建数量: {} 个",createNum);
+            LOGGER.info("完成时间：{} 秒",stopWatch.getTotalTimeSeconds());
+            LOGGER.info(stopWatch.prettyPrint());
+
         }
-        LOGGER.info("批量创建工作单完成，创建数量: {} 个",size);
-        stopWatch.stop();
-        stopWatch.start("结束");
-        LOGGER.info(stopWatch.prettyPrint());
     }
 
     /**
